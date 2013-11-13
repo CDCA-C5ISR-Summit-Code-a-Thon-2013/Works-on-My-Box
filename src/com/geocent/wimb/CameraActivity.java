@@ -42,6 +42,8 @@ import android.widget.Toast;
 
 public class CameraActivity extends Activity implements
 	Callback, Camera.FaceDetectionListener{
+	
+	public static final String RECOG_RESULT = "RECOG_RESULT";
 
 	private static final int CameraID = 0;
 	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
@@ -67,7 +69,7 @@ public class CameraActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);		
 
-		capture = (Button)findViewById(R.id.button1);
+		capture = (Button)findViewById(R.id.prevSuspect);
         capture.setOnClickListener(new Button.OnClickListener()
         {
 			public void onClick(View arg0) {
@@ -325,8 +327,12 @@ public class CameraActivity extends Activity implements
 	
 	public void suspectFound()
 	{
-		 TabActivity tabs = (TabActivity) getParent();
-		 tabs.getTabHost().setCurrentTab(1);		
+//		 TabActivity tabs = (TabActivity) getParent();
+//		 tabs.getTabHost().setCurrentTab(1);		
+	    Intent intent = new Intent(this, SuspectActivity.class);
+	    intent.putExtra(RECOG_RESULT, "Sheik Yeribouty");
+	    startActivity(intent);
+
 	}
 
 }

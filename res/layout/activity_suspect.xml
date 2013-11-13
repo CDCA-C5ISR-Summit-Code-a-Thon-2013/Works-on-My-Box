@@ -8,13 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".SuspectActivity" >
     
-    <TextView
-        android:id="@+id/descField"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView2"
-        android:layout_toLeftOf="@+id/imageView1"
-        android:hint="desc" />
 
     <ImageView
         android:id="@+id/imageView1"
@@ -29,9 +22,67 @@
         android:id="@+id/namefield"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/descrField"
         android:layout_marginLeft="28dp"
         android:layout_toRightOf="@+id/imageView1"
         android:hint="name" />
 
+    <TextView
+        android:id="@+id/aliasfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/namefield"
+        android:layout_marginLeft="28dp"
+        android:layout_toRightOf="@+id/imageView1"
+        android:hint="aliases" />
+
+    <Button
+        android:id="@+id/prevImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView1"
+        android:layout_marginTop="38dp"
+        android:text="&lt;&lt;&lt;" />
+    
+    <Button
+        android:id="@+id/nextImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageView1"
+        android:layout_toRightOf="@+id/prevImage"
+        android:layout_marginTop="38dp"
+        android:text="&gt;&gt;&gt;" />
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" 
+        android:layout_below="@+id/nextImage"
+        android:layout_above="@+id/prevSuspect"
+        />
+
+    <Button
+        android:id="@+id/prevSuspect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Prev" />
+
+    <Button
+        android:id="@+id/nextSuspect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/matchSuspect"
+        android:layout_alignBottom="@+id/matchSuspect"
+        android:layout_alignRight="@+id/listView1"
+        android:text="Next" />
+
+    <Button
+        android:id="@+id/matchSuspect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/prevSuspect"
+        android:layout_alignBottom="@+id/prevSuspect"
+        android:layout_centerHorizontal="true"
+        android:text="Match" />
+    
 </RelativeLayout>
