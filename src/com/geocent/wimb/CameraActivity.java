@@ -1,16 +1,27 @@
 package com.geocent.wimb;
 
-import java.io.FileOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Face;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -24,15 +35,20 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CameraActivity extends Activity implements
 	Callback, Camera.FaceDetectionListener{
 
 	private static final int CameraID = 0;
-	
+	private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+	private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
+	private Uri fileUri;
+	public static final int MEDIA_TYPE_IMAGE = 1;
+	public static final int MEDIA_TYPE_VIDEO = 2;
+
 	Camera camera;
 	Button start;
 	Button capture;
@@ -49,126 +65,104 @@ public class CameraActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
+		
+	    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
-        //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		setupCamera();
+	    fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
+	    intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
 
-		start = (Button)findViewById(R.id.buttonStart);
-        start.setOnClickListener(new Button.OnClickListener()
-        {
-			public void onClick(View arg0) {
-				if( !cameraStarted )
-				{
-					cameraStarted = true;
-					start.setClickable( false );
-					start_camera();
-				} else
-		            camera.startPreview();
+	    // start the image capture Intent
+	    startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 
+	}
+
+	private static Uri getOutputMediaFileUri(int type){
+	      return Uri.fromFile(getOutputMediaFile(type));
+	}
+	
+	/** Create a File for saving an image or video */
+	private static File getOutputMediaFile(int type){
+	    // To be safe, you should check that the SDCard is mounted
+	    // using Environment.getExternalStorageState() before doing this.
+
+	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+	              Environment.DIRECTORY_PICTURES), "WOMB");
+	    // This location works best if you want the created images to be shared
+	    // between applications and persist after your app has been uninstalled.
+
+	    // Create the storage directory if it does not exist
+	    if (! mediaStorageDir.exists()){
+	        if (! mediaStorageDir.mkdirs()){
+	            Log.d("MyCameraApp", "failed to create directory");
+	            return null;
+	        }
+	    }
+
+	    // Create a media file name
+	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+	    File mediaFile;
+	    if (type == MEDIA_TYPE_IMAGE){
+	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+	        "IMG_"+ timeStamp + ".jpg");
+	    } else if(type == MEDIA_TYPE_VIDEO) {
+	        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+	        "VID_"+ timeStamp + ".mp4");
+	    } else {
+	        return null;
+	    }
+
+	    return mediaFile;
+	}
+
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	    if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
+	        if (resultCode == RESULT_OK) 
+	        {
+	        	try {
+	        		String s = fileUri.toString();
+	        		s = s.substring( 6 ); //cut off the protocol part of the URI
+					RandomAccessFile f = new RandomAccessFile( s, "r");
+					byte[] image = new byte[(int)f.length()];
+					f.read( image );
 					
-			//captureImage();
-			}
-        });
- 
-		capture = (Button)findViewById(R.id.buttonCap);
-        capture.setOnClickListener(new Button.OnClickListener()
-        {
-			public void onClick(View arg0) {
-				captureImage();
-			}
-        });
- 
-        RelativeLayout myLayout = (RelativeLayout) findViewById(R.id.cameraLayout);
-        overlay = new Overlay(myLayout.getContext());
+			        BitmapFactory.Options options = new BitmapFactory.Options();
+			        //options.inSampleSize = 1;
 
-//        overlay.setLayoutParams(new RelativeLayout.LayoutParams(
-//        		RelativeLayout.LayoutParams.MATCH_PARENT,
-//        		RelativeLayout.LayoutParams.MATCH_PARENT));
+			        Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length,options);
+			        ImageView view;
+			        view = (ImageView)findViewById(R.id.imageView1);
+			        view.setImageBitmap(bitmap);
+			        f.close();
+			        
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	
+	        } else if (resultCode == RESULT_CANCELED) {
+	            // User cancelled the image capture
+	        } else {
+	            // Image capture failed, advise user
+	        }
+	    }
 
-        myLayout.addView( overlay );
-        myLayout.bringToFront();
+	    if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
+	        if (resultCode == RESULT_OK) {
+	            // Video captured and saved to fileUri specified in the Intent
+	            Toast.makeText(this, "Video saved to:\n" +
+	                     intent.getData(), Toast.LENGTH_LONG).show();
+	        } else if (resultCode == RESULT_CANCELED) {
+	            // User cancelled the video capture
+	        } else {
+	            // Video capture failed, advise user
+	        }
+	    }
 	}
-
-	private void setupCamera() 
-	{
-//		camera = Camera.open();
-//		Camera.Parameters parms = camera.getParameters();
-		
-	    /** Handles data for jpeg picture */
-	    shutterCallback = new ShutterCallback() {
-	        public void onShutter() {
-	            Log.i("Log", "onShutter'd");
-	        }
-	    };
-
-	    rawCallback = new PictureCallback() {
-	        public void onPictureTaken(byte[] data, Camera camera) {
-	            Log.d("Log", "onPictureTaken - raw");
-	        }
-	    };
-
-	    jpegCallback = new PictureCallback() {
-	        public void onPictureTaken(byte[] data, Camera camera) {
-	            FileOutputStream outStream = null;
-//	            try {
-//	                outStream = new FileOutputStream(String.format(
-//	                        "/sdcard/%d.jpg", System.currentTimeMillis()));
-//	                outStream.write(data);
-//	                outStream.close();
-//	                Log.d("Log", "onPictureTaken - wrote bytes: " + data.length);
-//	            } catch (FileNotFoundException e) {
-//	                e.printStackTrace();
-//	            } catch (IOException e) {
-//	                e.printStackTrace();
-//	            } finally {
-//	            }
-//	            Log.d("Log", "onPictureTaken - jpeg");
-	            
-				start.setClickable( true );
-
-	        }
-	    };
-		
-		
-		
-	}
-
-    private void captureImage() {
-        // TODO Auto-generated method stub
-        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-    }
-
-    private void start_camera()
-    {
-        try{
-            camera = Camera.open( CameraID );
-        }catch(RuntimeException e){
-            Log.e("ERROR", "init_camera: " + e);
-            return;
-        }
-        Camera.Parameters param;
-        param = camera.getParameters();
-        setCameraDisplayOrientation( this, CameraID, camera );
-        //modify parameter
-        //param.setPreviewFrameRate(20);
-        //param.setPreviewSize(176, 144);
-        camera.setParameters(param);
-        
-        camera.setFaceDetectionListener( this );
-        
-        try {
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
-            camera.startFaceDetection();
-            //camera.takePicture(shutter, raw, jpeg)
-        } catch (Exception e) {
-            Log.e("ERROR", "init_camera: " + e);
-            return;
-        }
-    }
 
 
 	@Override
