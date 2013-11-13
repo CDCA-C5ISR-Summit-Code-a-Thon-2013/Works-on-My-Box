@@ -29,31 +29,18 @@ public class CameraActivity extends Activity implements
 
 	Camera camera;
 	Button start;
-	Button stop;
+	Button capture;
 	SurfaceView surfaceView;
 	SurfaceHolder surfaceHolder;
 	ShutterCallback shutterCallback;
 	PictureCallback jpegCallback;
 	PictureCallback rawCallback;
+	Boolean  cameraStarted = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
-
-//        TextView textview = new TextView(this);
-//        textview.setText("This is the Camera tab");
-//        //addContentView(textview, null);
-//        setContentView(textview);
-
-
-//        stop = (Button)findViewById(R.id.btn_stop);
-//        stop.setOnClickListener(new Button.OnClickListener()
-//        {
-//			public void onClick(View arg0) {
-//			stop_camera();
-//			}
-//        });
 
         surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
         surfaceHolder = surfaceView.getHolder();
@@ -61,12 +48,28 @@ public class CameraActivity extends Activity implements
         //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		setupCamera();
 
-		start = (Button)findViewById(R.id.button1);
+		start = (Button)findViewById(R.id.buttonStart);
         start.setOnClickListener(new Button.OnClickListener()
         {
 			public void onClick(View arg0) {
-				start_camera();
+				if( !cameraStarted )
+				{
+					cameraStarted = true;
+					start.setClickable( false );
+					start_camera();
+				} else
+		            camera.startPreview();
+
+					
 			//captureImage();
+			}
+        });
+ 
+		capture = (Button)findViewById(R.id.buttonCap);
+        capture.setOnClickListener(new Button.OnClickListener()
+        {
+			public void onClick(View arg0) {
+				captureImage();
 			}
         });
  
@@ -93,19 +96,22 @@ public class CameraActivity extends Activity implements
 	    jpegCallback = new PictureCallback() {
 	        public void onPictureTaken(byte[] data, Camera camera) {
 	            FileOutputStream outStream = null;
-	            try {
-	                outStream = new FileOutputStream(String.format(
-	                        "/sdcard/%d.jpg", System.currentTimeMillis()));
-	                outStream.write(data);
-	                outStream.close();
-	                Log.d("Log", "onPictureTaken - wrote bytes: " + data.length);
-	            } catch (FileNotFoundException e) {
-	                e.printStackTrace();
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            } finally {
-	            }
-	            Log.d("Log", "onPictureTaken - jpeg");
+//	            try {
+//	                outStream = new FileOutputStream(String.format(
+//	                        "/sdcard/%d.jpg", System.currentTimeMillis()));
+//	                outStream.write(data);
+//	                outStream.close();
+//	                Log.d("Log", "onPictureTaken - wrote bytes: " + data.length);
+//	            } catch (FileNotFoundException e) {
+//	                e.printStackTrace();
+//	            } catch (IOException e) {
+//	                e.printStackTrace();
+//	            } finally {
+//	            }
+//	            Log.d("Log", "onPictureTaken - jpeg");
+	            
+				start.setClickable( true );
+
 	        }
 	    };
 		

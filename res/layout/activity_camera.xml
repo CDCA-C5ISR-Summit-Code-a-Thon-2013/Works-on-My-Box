@@ -12,17 +12,27 @@
         android:id="@+id/surfaceView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button1"
+        android:layout_above="@+id/buttonCap"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="16dp" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/buttonCap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="20dp"
+        android:layout_alignRight="@+id/surfaceView1"
+        android:layout_marginBottom="32dp"
+        android:layout_marginRight="34dp"
         android:text="Capture" />
+
+    <Button
+        android:id="@+id/buttonStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/surfaceView1"
+        android:layout_below="@+id/surfaceView1"
+        android:layout_marginLeft="16dp"
+        android:text="Start" />
 
 </RelativeLayout>
