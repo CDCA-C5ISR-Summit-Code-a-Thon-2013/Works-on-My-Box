@@ -1,13 +1,14 @@
 package com.geocent.codeathon.bio.info.services;
 
 import com.geocent.codeathon.bio.info.Utils.JsonHelper;
-import com.geocent.codeathon.bio.info.dao.PersonDao;
-import com.geocent.codeathon.bio.info.model.Person;
-import java.util.UUID;
+import com.geocent.codeathon.bio.info.dao.SuspectDao;
+import com.geocent.codeathon.bio.info.model.Suspect;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,17 +24,28 @@ public class SuspectResource {
     private JsonHelper jsonHelper;
 	
 	@Autowired
-	private PersonDao personDao;
-
-    private Logger logger = Logger.getLogger(this.getClass());   
+	private SuspectDao suspectDao;
 
 	@GET
 	@Path("id/{id}")
-	public Person getPerson(@PathParam("id") String id) {
+	public Suspect getSuspect(@PathParam("id") String id) {
 		if (null == id) {
-			return new Person();
+			return new Suspect();
 		}
-		Person person = personDao.getPerson(id);
+		Suspect person = suspectDao.getSuspect(id);
 		return person;
+	}
+	
+	@GET
+	@Path("ids/{idCsv}")
+	public List<Suspect> getSuspects(@PathParam("idCsv") String idCsv) {
+		List<Suspect> suspects = new ArrayList<Suspect>();
+		List<String> ids = Arrays.asList(idCsv.split("\\s*,\\s*"));
+		for (String id: ids) {
+			Suspect suspect = suspectDao.getSuspect(id);
+			suspects.add(suspect);
+		}
+		
+		return suspects;
 	}
 }

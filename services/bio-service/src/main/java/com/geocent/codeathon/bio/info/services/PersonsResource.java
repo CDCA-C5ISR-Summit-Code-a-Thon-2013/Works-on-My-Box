@@ -4,7 +4,7 @@
  */
 package com.geocent.codeathon.bio.info.services;
 
-import com.geocent.codeathon.bio.info.model.Person;
+import com.geocent.codeathon.bio.info.model.Suspect;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.POST;
@@ -59,7 +59,7 @@ public class PersonsResource {
 	 * Sub-resource locator method for {id}
 	 */
 	@Path("{id}")
-	public Person getPersonItemResource(@PathParam("id") String id) {
+	public Suspect getPersonItemResource(@PathParam("id") String id) {
 		return PersonResource.getInstance(id);
 	}
 }
