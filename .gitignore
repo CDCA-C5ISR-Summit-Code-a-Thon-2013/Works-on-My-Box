@@ -4,3 +4,4 @@ gen/
 .idea
 !.gitignore
 
+/services/bio-service/target/
