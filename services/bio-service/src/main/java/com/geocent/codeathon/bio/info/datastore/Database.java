@@ -1,8 +1,14 @@
 package com.geocent.codeathon.bio.info.datastore;
 
-import com.geocent.codeathon.bio.info.model.Person;
+import com.geocent.codeathon.bio.info.enums.ThreatLevel;
+import com.geocent.codeathon.bio.info.model.Note;
+import com.geocent.codeathon.bio.info.model.Image;
+import com.geocent.codeathon.bio.info.model.Suspect;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -14,49 +20,51 @@ import org.springframework.stereotype.Component;
 @Component
 public class Database {
 
-	private static Map<UUID, Person> PEOPLE = new HashMap<UUID, Person>();
-	private static Database db;
+	private Map<UUID, Suspect> people;
 
-	private Database() {
-		Person ben = new Person();
+	public Database() {
+		people = new HashMap<UUID, Suspect>();
+		
+		Suspect ben = new Suspect();
 		UUID benId = UUID.fromString("ced5de28-8618-45db-b99c-cd9c4f8fb7dc");
 		ben.setId(benId);
 		ben.setName("Ben Burns");
-		PEOPLE.put(benId, ben);
+		
+		List<String> aliases = new ArrayList<String>();
+		aliases.add("Benny");
+		aliases.add("B-Money");
+		ben.setAliases(aliases);
+
+		create(ben);
+		
 	}
 
-	public static Database instance() {
-		if (null == db) {
-			db = new Database();
-		}
-		return db;
-	}
-
-	public String create(Person person) {
-		return persist(person);
+	public final String create(Suspect suspect) {
+		return persist(suspect);
 	}
 	
-	public void save(Person person) {
-		persist(person);
+	public final void save(Suspect suspect) {
+		persist(suspect);
 	}
 
-	private String persist(Person person) {
+	private String persist(Suspect person) {
 		UUID uuid = person.getId();
 		if (null == uuid) {
 			uuid = UUID.randomUUID();
 			person.setId(uuid);
 		} 
-		PEOPLE.put(uuid, person);
+		people.put(uuid, person);
 		return uuid.toString();
 	}
 	
-	public Person getPersonBy(String id) {
+	public final Suspect getSuspectBy(String id) {
 		UUID uuid = UUID.fromString(id);
-		Person person = PEOPLE.get(uuid);
+		Suspect person = people.get(uuid);
 		return person;
 	}
 	
-	public Collection<Person> getPeople() {
-		return PEOPLE.values();
+	public Collection<Suspect> getSuspects() {
+		return people.values();
 	}
+	
 }

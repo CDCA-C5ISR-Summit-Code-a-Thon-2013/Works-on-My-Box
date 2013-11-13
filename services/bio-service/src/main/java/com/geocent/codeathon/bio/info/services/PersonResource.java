@@ -4,8 +4,8 @@
  */
 package com.geocent.codeathon.bio.info.services;
 
-import com.geocent.codeathon.bio.info.dao.PersonDao;
-import com.geocent.codeathon.bio.info.model.Person;
+import com.geocent.codeathon.bio.info.dao.SuspectDao;
+import com.geocent.codeathon.bio.info.model.Suspect;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.GET;
@@ -20,7 +20,7 @@ import javax.ws.rs.DELETE;
 public class PersonResource {
 
 	private String id;
-	private Person person;
+	private Suspect person;
 	
 	/**
 	 * Creates a new instance of PersonResource
@@ -32,9 +32,9 @@ public class PersonResource {
 	/**
 	 * Get instance of the PersonResource
 	 */
-	public static Person getInstance(String id) {
-		PersonDao personDao = new PersonDao();
-		Person person = personDao.getPerson(id);
+	public static Suspect getInstance(String id) {
+		SuspectDao personDao = new SuspectDao();
+		Suspect person = personDao.getSuspect(id);
 		return person;
 	}
 

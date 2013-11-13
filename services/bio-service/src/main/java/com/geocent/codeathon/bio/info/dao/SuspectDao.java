@@ -1,7 +1,7 @@
 package com.geocent.codeathon.bio.info.dao;
 
 import com.geocent.codeathon.bio.info.datastore.Database;
-import com.geocent.codeathon.bio.info.model.Person;
+import com.geocent.codeathon.bio.info.model.Suspect;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component;
  * @author aaronwhitney
  */
 @Component
-public class PersonDao {
+public class SuspectDao {
 	
 	@Autowired
 	Database db;
 	
-	public String createPerson(Person person) {
-		return db.create(person);
+	public String createSuspect(Suspect suspect) {
+		return db.create(suspect);
 	}
 	
-	public Person getPerson(String uuidString) {
-		return db.getPersonBy(uuidString);
+	public Suspect getSuspect(String uuidString) {
+		return db.getSuspectBy(uuidString);
 	}
 }

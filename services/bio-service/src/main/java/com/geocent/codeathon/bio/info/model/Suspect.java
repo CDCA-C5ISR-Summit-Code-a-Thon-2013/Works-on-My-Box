@@ -7,12 +7,13 @@ import java.util.UUID;
  *
  * @author aaronwhitney
  */
-public class Person {
+public class Suspect {
 	private UUID id;
 	private String name;
+	private String description;
 	private List<String> aliases;
 	private List<Note> notes;
-	private String bio;
+	private List<Image> images;
 
 	public UUID getId() {
 		return id;
@@ -28,6 +29,14 @@ public class Person {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public List<String> getAliases() {
@@ -46,11 +55,11 @@ public class Person {
 		this.notes = notes;
 	}
 
-	public String getBio() {
-		return bio;
+	public List<Image> getImages() {
+		return images;
 	}
 
-	public void setBio(String bio) {
-		this.bio = bio;
+	public void setImages(List<Image> images) {
+		this.images = images;
 	}
 }
