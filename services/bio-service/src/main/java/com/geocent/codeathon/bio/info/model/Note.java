@@ -10,11 +10,27 @@ import java.util.UUID;
  */
 public class Note {
 	private UUID id;
-	private String note;
+	private String details;
 	private Date timestamp;
 	private ThreatLevel threatLevel;
-	private String latitude;
-	private String longitude;
+	private String lat;
+	private String lon;
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
+	}
+
+	public String getDetails() {
+		return details;
+	}
+
+	public void setDetails(String details) {
+		this.details = details;
+	}
 
 	public Date getTimestamp() {
 		return timestamp;
@@ -32,19 +48,19 @@ public class Note {
 		this.threatLevel = threatLevel;
 	}
 
-	public UUID getId() {
-		return id;
+	public String getLat() {
+		return lat;
 	}
 
-	public void setId(UUID id) {
-		this.id = id;
+	public void setLat(String lat) {
+		this.lat = lat;
 	}
 
-	public String getNote() {
-		return note;
+	public String getLon() {
+		return lon;
 	}
 
-	public void setNote(String note) {
-		this.note = note;
+	public void setLon(String lon) {
+		this.lon = lon;
 	}
 }
