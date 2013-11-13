@@ -1,6 +1,9 @@
 package com.geocent.codeathon.bio.info.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -11,7 +14,7 @@ public class Person {
 	private UUID id;
 	private String name;
 	private List<String> aliases;
-	private List<Note> notes;
+	private Map<UUID, Encounter> encounters;
 	private String bio;
 
 	public UUID getId() {
@@ -38,19 +41,37 @@ public class Person {
 		this.aliases = aliases;
 	}
 
-	public List<Note> getNotes() {
-		return notes;
-	}
-
-	public void setNotes(List<Note> notes) {
-		this.notes = notes;
-	}
-
 	public String getBio() {
 		return bio;
 	}
 
 	public void setBio(String bio) {
 		this.bio = bio;
+	}
+
+	public List<Encounter> getEncounters() {
+		List<Encounter> encounters = new ArrayList<Encounter>();
+		encounters.addAll(this.encounters.values());
+		return encounters;
+	}
+
+	public void setEncounters(List<Encounter> encounters) {
+		if (null == encounters) {
+			this.encounters = new HashMap<UUID, Encounter>();
+		}
+		for (Encounter encounter: encounters) {
+			UUID uuid = encounter.getId();
+			if (null == uuid) {
+				uuid = UUID.randomUUID();
+			}
+			this.encounters.put(uuid, encounter);
+		}
+	}
+	
+	public void addEncounters(Encounter encounter) {
+		if (null == encounters) {
+			this.encounters = new HashMap<UUID, Encounter>();
+		}
+		this.encounters.put(encounter.getId(),encounter);
 	}
 }

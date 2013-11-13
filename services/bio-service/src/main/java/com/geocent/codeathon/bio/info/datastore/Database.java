@@ -1,8 +1,14 @@
 package com.geocent.codeathon.bio.info.datastore;
 
+import com.geocent.codeathon.bio.info.enums.ThreatLevel;
+import com.geocent.codeathon.bio.info.model.Encounter;
+import com.geocent.codeathon.bio.info.model.Image;
 import com.geocent.codeathon.bio.info.model.Person;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -14,29 +20,33 @@ import org.springframework.stereotype.Component;
 @Component
 public class Database {
 
-	private static Map<UUID, Person> PEOPLE = new HashMap<UUID, Person>();
-	private static Database db;
+	private Map<UUID, Person> people;
 
-	private Database() {
+	public Database() {
+		people = new HashMap<UUID, Person>();
+		
 		Person ben = new Person();
 		UUID benId = UUID.fromString("ced5de28-8618-45db-b99c-cd9c4f8fb7dc");
 		ben.setId(benId);
 		ben.setName("Ben Burns");
-		PEOPLE.put(benId, ben);
+		
+		List<String> aliases = new ArrayList<String>();
+		aliases.add("Benny");
+		aliases.add("B-Money");
+		ben.setAliases(aliases);
+
+		create(ben);
+		
+		createEncounter(ben.getId().toString(), "1st encounter", ThreatLevel.UNKNOWN, null);
+//		createEncounter(ben.getId().toString(), "2nd encounter", ThreatLevel.SAFE, null);
+		
 	}
 
-	public static Database instance() {
-		if (null == db) {
-			db = new Database();
-		}
-		return db;
-	}
-
-	public String create(Person person) {
+	public final String create(Person person) {
 		return persist(person);
 	}
 	
-	public void save(Person person) {
+	public final void save(Person person) {
 		persist(person);
 	}
 
@@ -46,17 +56,38 @@ public class Database {
 			uuid = UUID.randomUUID();
 			person.setId(uuid);
 		} 
-		PEOPLE.put(uuid, person);
+		people.put(uuid, person);
 		return uuid.toString();
 	}
 	
-	public Person getPersonBy(String id) {
+	public final Person getPersonBy(String id) {
 		UUID uuid = UUID.fromString(id);
-		Person person = PEOPLE.get(uuid);
+		Person person = people.get(uuid);
 		return person;
 	}
 	
 	public Collection<Person> getPeople() {
-		return PEOPLE.values();
+		return people.values();
 	}
+	
+	public final Encounter createEncounter(String personId, String note, ThreatLevel threatLevel, List<Image> images) {
+		UUID uuid = UUID.randomUUID();
+		Encounter encounter = new Encounter();
+		encounter.setId(uuid);
+		encounter.setTimestamp(new Date());
+		
+		encounter.setNote(note);
+		encounter.setThreatLevel(threatLevel);
+		if (null == images) {
+			images = new ArrayList<Image>();
+		}
+		encounter.setImages(images);
+		
+		UUID personUUID = UUID.fromString(personId);
+		Person person  = this.people.get(personUUID);
+		person.addEncounters(encounter);
+		
+		return encounter;
+	}
+	
 }
