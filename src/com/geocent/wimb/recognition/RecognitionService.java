@@ -26,7 +26,7 @@ import java.util.*;
  * @author: Ben Burns
  */
 
-public class RecognitonService {
+public class RecognitionService {
 
     public static final String serviceURL = "http://162.243.83.189/bio-service/services/";
     /**
@@ -40,7 +40,7 @@ public class RecognitonService {
          *
          * @param results
          */
-        abstract void onSuccess(List<RecognitionResult> results);
+        public abstract void onSuccess(List<RecognitionResult> results);
 
         /**
          * On error, this will be called with a string describing the error
@@ -48,7 +48,7 @@ public class RecognitonService {
          *
          * @param errorMessage
          */
-        abstract void onError(String errorMessage);
+        public abstract void onError(String errorMessage);
     }
 
     /**

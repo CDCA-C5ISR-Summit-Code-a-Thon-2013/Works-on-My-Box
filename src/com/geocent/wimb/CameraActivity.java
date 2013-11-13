@@ -1,12 +1,7 @@
 package com.geocent.wimb;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+
+import com.geocent.wimb.recognition.RecognitionService;
 
 import android.app.Activity;
 import android.app.TabActivity;
@@ -27,18 +22,21 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.view.*;
 import android.view.SurfaceHolder.Callback;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.geocent.wimb.recognition.model.RecognitionResult;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class CameraActivity extends Activity implements
 	Callback, Camera.FaceDetectionListener{
@@ -146,7 +144,18 @@ public class CameraActivity extends Activity implements
 			        view = (ImageView)findViewById(R.id.imageView1);
 			        view.setImageBitmap(bitmap);
 			        f.close();
-			        
+
+                    RecognitionService.doRecognition(fileUri, new RecognitionService.Callback() {
+                        @Override
+                        public void onSuccess(List<RecognitionResult> results) {
+                            //TODO: implement success handler here
+                        }
+
+                        @Override
+                        public void onError(String errorMessage) {
+                            //TODO: implement error handler here
+                        }
+                    });
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -159,18 +168,6 @@ public class CameraActivity extends Activity implements
 	            // User cancelled the image capture
 	        } else {
 	            // Image capture failed, advise user
-	        }
-	    }
-
-	    if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
-	        if (resultCode == RESULT_OK) {
-	            // Video captured and saved to fileUri specified in the Intent
-	            Toast.makeText(this, "Video saved to:\n" +
-	                     intent.getData(), Toast.LENGTH_LONG).show();
-	        } else if (resultCode == RESULT_CANCELED) {
-	            // User cancelled the video capture
-	        } else {
-	            // Video capture failed, advise user
 	        }
 	    }
 	}
