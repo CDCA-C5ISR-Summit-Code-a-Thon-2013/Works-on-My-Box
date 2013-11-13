@@ -59,7 +59,7 @@ public class PersonsResource {
 	 * Sub-resource locator method for {id}
 	 */
 	@Path("{id}")
-	public Person getPesonItemResource(@PathParam("id") String id) {
+	public Person getPersonItemResource(@PathParam("id") String id) {
 		return PersonResource.getInstance(id);
 	}
 }

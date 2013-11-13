@@ -3,24 +3,24 @@ package com.geocent.codeathon.bio.info.dao;
 import com.geocent.codeathon.bio.info.datastore.Database;
 import com.geocent.codeathon.bio.info.model.Person;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author aaronwhitney
  */
+@Component
 public class PersonDao {
-	public static String createPerson(Person person) {
-		UUID uuid = person.getId();
-		if (null == uuid) {
-			uuid = UUID.randomUUID();
-		}
-		Database.PEOPLE.put(uuid, person);
-		return uuid.toString();
+	
+	@Autowired
+	Database db;
+	
+	public String createPerson(Person person) {
+		return db.create(person);
 	}
 	
 	public Person getPerson(String uuidString) {
-		UUID uuid = UUID.fromString(uuidString);
-		Person person = Database.PEOPLE.get(uuid);
-		return person;
+		return db.getPersonBy(uuidString);
 	}
 }

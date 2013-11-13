@@ -25,6 +25,8 @@ public class ApplicationConfig extends Application {
 	private void addRestResourceClasses(Set<Class<?>> resources) {
 		resources.add(com.geocent.codeathon.bio.info.services.PersonResource.class);
 		resources.add(com.geocent.codeathon.bio.info.services.PersonsResource.class);
+		resources.add(com.geocent.codeathon.bio.info.services.SuspectResource.class);
+		resources.add(com.geocent.codeathon.bio.info.services.providers.GenericResponseProvider.class);
 	}
 
 }
