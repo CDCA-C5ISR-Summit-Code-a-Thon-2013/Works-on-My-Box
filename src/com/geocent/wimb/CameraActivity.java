@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.TabActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -64,9 +65,17 @@ public class CameraActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_camera);
-		
-	    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		setContentView(R.layout.activity_camera);		
+
+		capture = (Button)findViewById(R.id.button1);
+        capture.setOnClickListener(new Button.OnClickListener()
+        {
+			public void onClick(View arg0) {
+				suspectFound();
+			}
+        });
+        
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
 	    fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
 	    intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
@@ -312,6 +321,12 @@ public class CameraActivity extends Activity implements
 			 matrix.postTranslate(overlay.getWidth() / 2f, overlay.getHeight() / 2f);
 			overlay.drawRect( f.rect );
 		}
+	}
+	
+	public void suspectFound()
+	{
+		 TabActivity tabs = (TabActivity) getParent();
+		 tabs.getTabHost().setCurrentTab(1);		
 	}
 
 }
