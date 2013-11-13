@@ -1,12 +1,13 @@
 package com.geocent.wimb;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Face;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
@@ -23,10 +24,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class CameraActivity extends Activity implements
-	Callback{
+	Callback, Camera.FaceDetectionListener{
 
 	private static final int CameraID = 0;
 	
@@ -39,6 +42,8 @@ public class CameraActivity extends Activity implements
 	PictureCallback jpegCallback;
 	PictureCallback rawCallback;
 	Boolean  cameraStarted = false;
+	Overlay overlay;
+	static int currentCameraOrientation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +81,15 @@ public class CameraActivity extends Activity implements
 			}
         });
  
+        RelativeLayout myLayout = (RelativeLayout) findViewById(R.id.cameraLayout);
+        overlay = new Overlay(myLayout.getContext());
+
+//        overlay.setLayoutParams(new RelativeLayout.LayoutParams(
+//        		RelativeLayout.LayoutParams.MATCH_PARENT,
+//        		RelativeLayout.LayoutParams.MATCH_PARENT));
+
+        myLayout.addView( overlay );
+        myLayout.bringToFront();
 	}
 
 	private void setupCamera() 
@@ -142,9 +156,13 @@ public class CameraActivity extends Activity implements
         //param.setPreviewFrameRate(20);
         //param.setPreviewSize(176, 144);
         camera.setParameters(param);
+        
+        camera.setFaceDetectionListener( this );
+        
         try {
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
+            camera.startFaceDetection();
             //camera.takePicture(shutter, raw, jpeg)
         } catch (Exception e) {
             Log.e("ERROR", "init_camera: " + e);
@@ -270,7 +288,36 @@ public class CameraActivity extends Activity implements
 	     } else {  // back-facing
 	         result = (info.orientation - degrees + 360) % 360;
 	     }
+	     currentCameraOrientation = result;
 	     camera.setDisplayOrientation(result);
 	 }
+
+	@Override
+	public void onFaceDetection(Face[] faces, Camera camera) 
+	{
+		//overlay.reset();
+		Log.i( "Stuff",  "Drawing " + faces.length + " rects");
+
+		for( int i=0; i<faces.length; i++ )
+		{
+			Face f = faces[i];
+		     android.hardware.Camera.CameraInfo info =
+		             new android.hardware.Camera.CameraInfo();
+		     android.hardware.Camera.getCameraInfo(CameraID, info);
+
+		     Matrix matrix = new Matrix();
+//			 CameraInfo info = CameraHolder.instance().getCameraInfo()[cameraId];
+			 // Need mirror for front camera.
+			 boolean mirror = (info.facing == CameraInfo.CAMERA_FACING_FRONT);
+			 matrix.setScale(mirror ? -1 : 1, 1);
+			 // This is the value for android.hardware.Camera.setDisplayOrientation.
+			 matrix.postRotate(currentCameraOrientation);
+			 // Camera driver coordinates range from (-1000, -1000) to (1000, 1000).
+			 // UI coordinates range from (0, 0) to (width, height).
+			 matrix.postScale(overlay.getWidth() / 2000f, overlay.getHeight() / 2000f);
+			 matrix.postTranslate(overlay.getWidth() / 2f, overlay.getHeight() / 2f);
+			overlay.drawRect( f.rect );
+		}
+	}
 
 }
