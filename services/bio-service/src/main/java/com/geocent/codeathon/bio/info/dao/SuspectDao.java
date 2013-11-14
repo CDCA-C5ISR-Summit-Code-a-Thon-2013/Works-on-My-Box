@@ -23,4 +23,8 @@ public class SuspectDao {
 	public Suspect getSuspect(String uuidString) {
 		return db.getSuspectBy(uuidString);
 	}
+	
+	public void saveSuspect(Suspect suspect) {
+		db.save(suspect);
+	}
 }
