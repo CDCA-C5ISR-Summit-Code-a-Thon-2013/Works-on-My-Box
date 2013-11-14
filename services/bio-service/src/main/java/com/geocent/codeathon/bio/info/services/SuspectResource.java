@@ -6,7 +6,9 @@ import com.geocent.codeathon.bio.info.model.Suspect;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,4 +50,11 @@ public class SuspectResource {
 		
 		return suspects;
 	}
+	
+	@POST
+	public void createSuspect(@FormParam("suspect") String jsonSuspect) {
+		Suspect suspect = (Suspect) jsonHelper.convertFromJson(jsonSuspect, Suspect.class);
+		String id = suspectDao.createSuspect(suspect);
+	}
+	
 }

@@ -33,7 +33,8 @@ public class Database {
 		create(aaron);
 		
 	}
-	private static Suspect createMockSuspect(String uuid, String name) {
+	
+	public static Suspect createMockSuspect(String uuid, String name) {
 		Suspect suspect = new Suspect();
 		UUID id = UUID.fromString(uuid);
 		suspect.setId(id);
@@ -53,7 +54,7 @@ public class Database {
 	}
 
 	
-	private static Note createMockNote(String details, ThreatLevel threat, String lat, String lon) {
+	public static Note createMockNote(String details, ThreatLevel threat, String lat, String lon) {
 		Note note = new Note();
 		note.setId(UUID.randomUUID());
 		note.setDetails(details);
