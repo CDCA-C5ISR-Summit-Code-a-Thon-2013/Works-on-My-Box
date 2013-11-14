@@ -83,6 +83,6 @@
         android:layout_alignBaseline="@+id/prevSuspect"
         android:layout_alignBottom="@+id/prevSuspect"
         android:layout_centerHorizontal="true"
-        android:text="Match" />
+        android:text="Camera" />
     
 </RelativeLayout>
