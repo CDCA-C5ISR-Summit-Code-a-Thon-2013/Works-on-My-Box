@@ -1,10 +1,19 @@
 package com.geocent.wimb;
 
 
-import com.geocent.wimb.recognition.RecognitionService;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
-import android.app.TabActivity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,21 +31,20 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.geocent.wimb.recognition.model.RecognitionResult;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import com.geocent.wimb.recognition.RecognitionService;
+import com.geocent.wimb.recognition.model.RecognitionResult;
 
 public class CameraActivity extends Activity implements
 	Callback, Camera.FaceDetectionListener{
@@ -75,6 +83,11 @@ public class CameraActivity extends Activity implements
 			}
         });
         
+        startCameraSession();
+	}
+	
+	private void startCameraSession()
+	{
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
 	    fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
@@ -82,7 +95,7 @@ public class CameraActivity extends Activity implements
 
 	    // start the image capture Intent
 	    startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-
+		
 	}
 
 	private static Uri getOutputMediaFileUri(int type){
@@ -148,13 +161,25 @@ public class CameraActivity extends Activity implements
                     RecognitionService.doRecognition(fileUri, new RecognitionService.Callback() {
                         @Override
                         public void onSuccess(List<RecognitionResult> results) {
-                            //TODO: implement success handler here
+                        	
+                    	    Intent intent = new Intent(CameraActivity.this, SuspectActivity.class);
+                    	    intent.putExtra(RECOG_RESULT, (ArrayList) results);
+                    	    startActivity(intent);
                         }
 
                         @Override
                         public void onError(String errorMessage) {
-                            //TODO: implement error handler here
-                        }
+                        	new AlertDialog.Builder(CameraActivity.this)
+                            .setTitle("Service Error")
+                            .setMessage("We were unable to reach the remote service.")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) { 
+                                	//Restart camera session
+                                    CameraActivity.this.startCameraSession();
+                                }
+                             })
+                             .show();                        
+                        	}
                     });
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
@@ -326,9 +351,6 @@ public class CameraActivity extends Activity implements
 	{
 //		 TabActivity tabs = (TabActivity) getParent();
 //		 tabs.getTabHost().setCurrentTab(1);		
-	    Intent intent = new Intent(this, SuspectActivity.class);
-	    intent.putExtra(RECOG_RESULT, "Sheik Yeribouty");
-	    startActivity(intent);
 
 	}
 
