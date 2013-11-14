@@ -4,6 +4,9 @@
 
 package com.geocent.wimb.recognition;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ExifInterface;
 import android.net.Uri;
 import com.geocent.wimb.recognition.model.Note;
 import com.geocent.wimb.recognition.model.RecognitionResult;
@@ -15,9 +18,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import rekognition.RekoSDK;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.*;
 
 /**
@@ -51,6 +54,14 @@ public class RecognitionService {
         public abstract void onError(String errorMessage);
     }
 
+    private static int exifToDegrees(int exifOrientation) {
+        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) { return 90; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {  return 180; }
+        else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
+
+        return 0;
+    }
+
     /**
      * This actually does the image recognition and performs the lookup on the
      * resultant entities which are found
@@ -59,9 +70,47 @@ public class RecognitionService {
      * @param callback
      */
     public static void doRecognition(Uri fileUri, final Callback callback) throws IOException {
-        RandomAccessFile f = new RandomAccessFile(fileUri.toString().replaceAll("file://",""), "r");
-        byte[] bytes = new byte[(int)f.length()];
-        f.read(bytes);
+
+        String path = fileUri.toString().replaceAll("file://", "");
+        /*RandomAccessFile file = new RandomAccessFile(path, "r");
+
+        byte bytes[] = new byte[(int)file.length()];
+        file.read(bytes);
+
+        ExifInterface exif = new ExifInterface(path);
+
+        int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int rotationInDegrees = exifToDegrees(rotation);
+
+        Matrix matrix = new Matrix();
+        if (rotation != 0f) {matrix.preRotate(rotationInDegrees);};*/
+
+        Bitmap bi = BitmapFactory.decodeFile(path);
+
+        /*Matrix matrix = new Matrix();
+        matrix.setScale(-1,1);
+        matrix.postTranslate(bi.getWidth(),0);
+
+        int width = bi.getWidth();
+        int height = bi.getHeight();
+
+        bi = Bitmap.createBitmap(bi, 0, 0, width, height, matrix, true);*/
+
+        /*bi = Bitmap.createBitmap(bi, 0, 0, width, height, matrix, true);
+
+        double scale;
+
+        if(width > height){
+            scale = 800.0/width;
+        }else{
+            scale = 800.0/height;
+        }
+
+        bi = Bitmap.createScaledBitmap(bi, (int)Math.round(width*0.5), (int)Math.round(height*0.5), false);*/
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bi.compress(Bitmap.CompressFormat.JPEG, 80, stream);
+        byte[] bytes = stream.toByteArray();
 
         RekoSDK.face_recognize(bytes, new RekoSDK.APICallback() {
 
@@ -79,54 +128,75 @@ public class RecognitionService {
                     return;
                 }
 
+                String pretty = "";
+                try {
+                    pretty = response.toString(4);
+                } catch (JSONException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
                 ArrayList<RecognitionResult> resultsList = new ArrayList<RecognitionResult>();
                 if(status.equals("Succeed.")){
                     try{
                         JSONArray resultsArr = response.getJSONArray("face_detection");
                         if(resultsArr.length() != 0){
                             for(int i=0;i<resultsArr.length();i++){
-                                HttpResponse<String> svcResponse = Unirest.get(serviceURL + "suspect").asString();
-                                JSONObject imgSVCResponse = new JSONObject(svcResponse.getBody());
-                                RecognitionResult recResult = new RecognitionResult();
-
-                                recResult.setId(UUID.fromString(imgSVCResponse.getString("id")));
-                                recResult.setName(imgSVCResponse.getString("name"));
-                                recResult.setDescription(imgSVCResponse.getString("description"));
-
-                                JSONArray aliases = imgSVCResponse.getJSONArray("aliases");
-
-                                for(int j=0;j<aliases.length();j++){
-                                    recResult.getAliases().add(aliases.getString(j));
+                                JSONObject detection = resultsArr.getJSONObject(i);
+                                if(!detection.has("matches")){
+                                    continue;
                                 }
 
-                                JSONArray notes = imgSVCResponse.getJSONArray("notes");
+                                JSONArray matchesArray = detection.getJSONArray("matches");
+                                for(int k=0;k<matchesArray.length();k++){
+                                    JSONObject match = matchesArray.getJSONObject(k);
 
-                                for(int j=0;j<aliases.length();j++){
-                                    Note note = new Note();
-                                    JSONObject noteObj = notes.getJSONObject(j);
-                                    note.setDetails(noteObj.getString("details"));
-                                    note.setLat(noteObj.getString("lat"));
-                                    note.setLon(noteObj.getString("lon"));
-
-                                    Calendar timestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                                    timestamp.setTimeInMillis(noteObj.getLong("timestamp"));
-                                    note.setTimestamp(timestamp);
-
-                                    String threat = noteObj.getString("threat_level");
-
-                                    if(threat.equals("none")){
-                                        note.setThreatLevel(Note.NO_THREAT);
-                                    }else if(threat.equals("unknown")){
-                                        note.setThreatLevel(Note.THREAT_LEVEL_UNKNOWN);
-                                    }else if(threat.equals("threat")){
-                                        note.setThreatLevel(Note.THREAT);
+                                    if(Double.parseDouble(match.getString("score")) < 0.03){
+                                        continue;
                                     }
 
-                                    recResult.getNotes().add(note);
+                                    HttpResponse<String> svcResponse = Unirest.get(serviceURL + "suspect/" + match.getString("tag")).asString();
+                                    JSONObject imgSVCResponse = new JSONObject(svcResponse.getBody());
+                                    RecognitionResult recResult = new RecognitionResult();
 
+                                    recResult.setId(UUID.fromString(imgSVCResponse.getString("id")));
+                                    recResult.setName(imgSVCResponse.getString("name"));
+                                    recResult.setDescription(imgSVCResponse.getString("description"));
+
+                                    JSONArray aliases = imgSVCResponse.getJSONArray("aliases");
+
+                                    for(int j=0;j<aliases.length();j++){
+                                        recResult.getAliases().add(aliases.getString(j));
+                                    }
+
+                                    JSONArray notes = imgSVCResponse.getJSONArray("notes");
+
+                                    for(int j=0;j<aliases.length();j++){
+                                        Note note = new Note();
+                                        JSONObject noteObj = notes.getJSONObject(j);
+                                        note.setDetails(noteObj.getString("details"));
+                                        note.setLat(noteObj.getString("lat"));
+                                        note.setLon(noteObj.getString("lon"));
+
+                                        Calendar timestamp = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                                        timestamp.setTimeInMillis(noteObj.getLong("timestamp"));
+                                        note.setTimestamp(timestamp);
+
+                                        String threat = noteObj.getString("threat_level");
+
+                                        if(threat.equals("none")){
+                                            note.setThreatLevel(Note.NO_THREAT);
+                                        }else if(threat.equals("unknown")){
+                                            note.setThreatLevel(Note.THREAT_LEVEL_UNKNOWN);
+                                        }else if(threat.equals("threat")){
+                                            note.setThreatLevel(Note.THREAT);
+                                        }
+
+                                        recResult.getNotes().add(note);
+
+                                    }
+
+                                    resultsList.add(recResult);
                                 }
-
-                                resultsList.add(recResult);
                             }
 
                             callback.onSuccess(resultsList);

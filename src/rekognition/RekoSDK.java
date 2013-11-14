@@ -201,6 +201,9 @@ public class RekoSDK {
 	public static void face_recognize(String sImageURL, final APICallback callbackFunc) {
 		List<NameValuePair> params = getBasicParameters();
 		params.add(new BasicNameValuePair("jobs", "face_recognize"));
+        params.add(new BasicNameValuePair("user_id", "testing"));
+        params.add(new BasicNameValuePair("name_space", "testing"));
+        params.add(new BasicNameValuePair("num_return", "3"));
 		addImageDataValuePair(params, sImageURL, null);
 		callAPICallInAnotherThread(params, callbackFunc);
 	}
@@ -215,6 +218,9 @@ public class RekoSDK {
 	public static void face_recognize(byte[] b, final APICallback callbackFunc) {
 		List<NameValuePair> params = getBasicParameters();
 		params.add(new BasicNameValuePair("jobs", "face_recognize"));
+        params.add(new BasicNameValuePair("num_return", "3"));
+        params.add(new BasicNameValuePair("user_id", "testing"));
+        params.add(new BasicNameValuePair("name_space", "testing"));
 		addImageDataValuePair(params, null, b);
 		callAPICallInAnotherThread(params, callbackFunc);
 	}

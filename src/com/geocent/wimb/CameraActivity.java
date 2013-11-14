@@ -1,16 +1,6 @@
 package com.geocent.wimb;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -31,20 +21,23 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.Surface;
-import android.view.SurfaceHolder;
+import android.view.*;
 import android.view.SurfaceHolder.Callback;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.geocent.wimb.recognition.RecognitionService;
 import com.geocent.wimb.recognition.model.RecognitionResult;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class CameraActivity extends Activity implements
 	Callback, Camera.FaceDetectionListener{
@@ -109,6 +102,7 @@ public class CameraActivity extends Activity implements
 
 	    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
 	              Environment.DIRECTORY_PICTURES), "WOMB");
+        //File mediaStorageDir = new File("/sdcard/DCIM/WOMB");
 	    // This location works best if you want the created images to be shared
 	    // between applications and persist after your app has been uninstalled.
 
@@ -161,10 +155,35 @@ public class CameraActivity extends Activity implements
                     RecognitionService.doRecognition(fileUri, new RecognitionService.Callback() {
                         @Override
                         public void onSuccess(List<RecognitionResult> results) {
-                        	
-                    	    Intent intent = new Intent(CameraActivity.this, SuspectActivity.class);
-                    	    intent.putExtra(RECOG_RESULT, (ArrayList) results);
-                    	    startActivity(intent);
+
+                            if(results.size() == 0){
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(CameraActivity.this);
+                                builder.setMessage("Recognition unsuccessful, try again, or train?")
+                                        .setPositiveButton("Try again", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                CameraActivity.this.startCameraSession();
+                                            }
+                                        })
+                                        .setNegativeButton("Train", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                //TODO:
+                                                CameraActivity.this.startCameraSession();
+                                            }
+                                        });
+
+                                CameraActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        builder.create().show();
+                                    }
+                                });
+                            }else{
+                                Intent intent = new Intent(CameraActivity.this, SuspectActivity.class);
+                                intent.putExtra(RECOG_RESULT, (ArrayList) results);
+                                startActivity(intent);
+                            }
                         }
 
                         @Override
