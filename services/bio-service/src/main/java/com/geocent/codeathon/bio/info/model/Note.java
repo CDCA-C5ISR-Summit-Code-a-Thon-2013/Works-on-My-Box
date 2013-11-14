@@ -1,6 +1,7 @@
 package com.geocent.codeathon.bio.info.model;
 
 import com.geocent.codeathon.bio.info.enums.ThreatLevel;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -8,7 +9,8 @@ import java.util.UUID;
  *
  * @author aaronwhitney
  */
-public class Note {
+public class Note implements Serializable {
+	private static final long serialVersionUID = -2142553675247626018L;
 	private UUID id;
 	private String details;
 	private Date timestamp;

@@ -5,3 +5,4 @@ gen/
 !.gitignore
 
 /services/bio-service/target/
+*.iml

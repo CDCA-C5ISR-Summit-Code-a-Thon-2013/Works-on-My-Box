@@ -1,6 +1,5 @@
 package com.geocent.codeathon.bio.info.services;
 
-import com.geocent.codeathon.bio.info.Utils.JsonHelper;
 import com.geocent.codeathon.bio.info.dao.SuspectDao;
 import com.geocent.codeathon.bio.info.model.Image;
 import com.geocent.codeathon.bio.info.model.Suspect;

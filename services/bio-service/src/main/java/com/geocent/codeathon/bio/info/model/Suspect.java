@@ -1,5 +1,6 @@
 package com.geocent.codeathon.bio.info.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,7 +8,8 @@ import java.util.UUID;
  *
  * @author aaronwhitney
  */
-public class Suspect {
+public class Suspect implements Serializable {
+	private static final long serialVersionUID = 5141329421123811109L;
 	private UUID id;
 	private String name;
 	private String description;

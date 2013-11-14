@@ -1,5 +1,6 @@
 package com.geocent.codeathon.bio.info.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -7,7 +8,8 @@ import java.util.UUID;
  *
  * @author aaronwhitney
  */
-public class Image {
+public class Image implements Serializable {
+	private static final long serialVersionUID = -6318877393644207346L;
 	private UUID id;
 	private String url;
 	private Date timestamp;
