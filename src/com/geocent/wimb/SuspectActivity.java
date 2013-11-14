@@ -82,7 +82,13 @@ public class SuspectActivity extends Activity {
         });
 
 		matchSuspect = (Button) findViewById( R.id.matchSuspect );
-		
+		matchSuspect.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	Intent intent = new Intent( SuspectActivity.this, CameraActivity.class );
+        	    startActivity(intent);
+            }
+        });
+
 		nextSuspect = (Button) findViewById( R.id.nextSuspect );
 		prevImageButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
